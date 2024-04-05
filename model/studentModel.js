@@ -32,8 +32,10 @@ const StudentsSchema = new Schema ({
     DOB:{type: Date, required:false },
     bloodGroup:{type: String, required:false},
     religion:{type:String, required:false, default: 'Islam'},
-    classes: {type:String, required:true},
+    isPaid:{type:Boolean, default:'false', required:true},
+    amount:{type:Number,default:'0',required:true},
     address: [String],
+    classes: [String],
     admission:{
         type: Date,
         required: true,

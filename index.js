@@ -6,7 +6,9 @@ const authRoutes = require('./routes/authRoutes');
 const dotenv = require("dotenv")
 const teachersRoutes = require('./routes/teachersRoutes');
 const studentsRoutes = require('./routes/studentRoutes');
-const parentsRoutes = require('./routes/parentsRoutes')
+const parentsRoutes = require('./routes/parentsRoutes');
+const subjectRoutes = require('./routes/subjectRoutes');
+const classRoutes = require('./routes/classesRoutes')
 dotenv.config()
 
 const app = express();
@@ -29,7 +31,9 @@ app.use('/auth', authRoutes);
 app.use('/api', userRoutes);
 app.use('/teachers', teachersRoutes.router);
 app.use('/students', studentsRoutes.router);
-app.use('/parents', parentsRoutes.router)
+app.use('/parents', parentsRoutes.router);
+app.use('/subject', subjectRoutes.router);
+app.use('/class', classRoutes.router)
 
 app.listen(3000, () => {
   console.log('Server is running on port 3000');

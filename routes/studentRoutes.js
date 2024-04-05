@@ -5,4 +5,6 @@ const {AuthGuard} = require('../middlewares/authGuard');
 router
 .post('/', students.createStudent)
 .get('/all', students.allStudents)
+.get('/',students.findAllStudents)
+.patch('/fee/:email', students.StudentFees)
 exports.router = router

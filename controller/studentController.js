@@ -23,7 +23,7 @@ exports.createStudent =  async (req, res) => {
         }
 
         try {
-            const { firstName, lastName, email,motherName, fatherName, fatherOccupation, gender, phoneNumber, bloodGroup, religion, classes, address, date, month, year } = req.body;
+            const { firstName, lastName, email,motherName, fatherName, fatherOccupation, gender, phoneNumber, bloodGroup, religion, classes, address, date, month, year,amount } = req.body;
 
             if (!firstName || !lastName || !email || !phoneNumber || !date || !month || !year) {
                 return new Response(res, 400, "All fields are required, including date of birth.", false);
@@ -55,7 +55,7 @@ exports.createStudent =  async (req, res) => {
                 bloodGroup,
                 religion,
                 DOB,
-                classes,
+                amount,
                 profilePic: {
                     data: image,
                     contentType: req.file.originalname
@@ -66,6 +66,10 @@ exports.createStudent =  async (req, res) => {
             if (address) {
                 newStudent.address.push(address);
             }
+            if(classes){
+                newStudent.classes.push(classes)
+            }
+            
 
             await newStudent.save();
 
@@ -83,6 +87,67 @@ exports.allStudents = async (req,res)=>{
     }
     catch (error) {
         console.log(error);
+        return new Response(res, 500, "Internal Server Error", false, error.message);
+    }
+}
+exports.StudentFees = async (req, res)=>{
+    const { email } = req.params;
+const { amount } = req.body;
+
+try {
+    let updateQuery = {};
+
+    if (amount === 2000) {
+        updateQuery = { isPaid: true,amount:req.body.amount};
+    }
+
+    const studentFee = await Student.findOneAndUpdate(
+        { email: email },
+        updateQuery,
+        { new: true }
+    );
+
+    if (!studentFee) {
+        return new Response(res, 404, "Student not found", false);
+    }
+
+    const updatedStudent = await Student.findOne({ email: email });
+
+    return new Response(res, 200, "Student's fee updated successfully", true, updatedStudent);
+} catch (error) {
+    console.log(error);
+    return new Response(res, 500, "Internal Server Error", false, error.message);
+}
+}
+
+exports.findAllStudents = async (req, res) => {
+    try {
+        const { page, limit, search, className, isPaid } = req.query;
+        const skip = (Number(page) - 1) * Number(limit);
+        const filters = {};
+
+        if (search) {
+            filters['firstName'] = { $regex: new RegExp(search, 'i') };
+        }
+
+        if (className) {
+            filters['class'] = { $regex: new RegExp(className, 'i') };
+        }
+        if (isPaid !== undefined) {
+            filters['isPaid'] = isPaid; 
+        }
+
+        const students = await Student.find(filters)
+                                      .sort({ createdAt: -1 })
+                                      .skip(skip)
+                                      .limit(limit);
+
+        if (!students || students.length === 0) {
+            return new Response(res, 200, "No record", false);
+        }
+        
+        return new Response(res, 200, "Data Retrieved", true, students);
+    } catch (error) {
         return new Response(res, 500, "Internal Server Error", false, error.message);
     }
 }
